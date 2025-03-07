@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { Trash2 } from 'lucide-react';
@@ -22,32 +22,7 @@ export function Note({ id, content: initialContent }: NoteProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    // 編集モード開始時にテキストエリアにフォーカス
-    if (isEditing && textareaRef.current) {
-      textareaRef.current.focus();
-    }
-  }, [isEditing]);
-
-  useEffect(() => {
-    // 外側クリックで保存する処理
-    function handleClickOutside(event: MouseEvent) {
-      if (
-        isEditing &&
-        wrapperRef.current &&
-        !wrapperRef.current.contains(event.target as Node)
-      ) {
-        handleSave();
-      }
-    }
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [isEditing, content]);
-
-  const handleSave = async () => {
+  const handleSave = useCallback(async () => {
     if (content === initialContent) {
       setIsEditing(false);
       return;
@@ -77,7 +52,32 @@ export function Note({ id, content: initialContent }: NoteProps) {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [content, initialContent, id, router]);
+
+  useEffect(() => {
+    // 編集モード開始時にテキストエリアにフォーカス
+    if (isEditing && textareaRef.current) {
+      textareaRef.current.focus();
+    }
+  }, [isEditing]);
+
+  useEffect(() => {
+    // 外側クリックで保存する処理
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        isEditing &&
+        wrapperRef.current &&
+        !wrapperRef.current.contains(event.target as Node)
+      ) {
+        handleSave();
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isEditing, handleSave]);
 
   const handleDelete = async () => {
     if (!confirm('このメモを削除してもよろしいですか？')) {
