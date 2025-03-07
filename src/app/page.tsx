@@ -51,13 +51,19 @@ export default async function HomePage() {
       </div>
       <CreateNote />
       <div className="space-y-2">
-        {notes.map((note: Note) => (
-          <Note
-            key={note.id}
-            id={note.id}
-            content={note.content}
-          />
-        ))}
+        {notes.length === 0 ? (
+          <p className="text-center text-muted-foreground py-8">
+            まだメモは作成されていません。
+          </p>
+        ) : (
+          notes.map((note: Note) => (
+            <Note
+              key={note.id}
+              id={note.id}
+              content={note.content}
+            />
+          ))
+        )}
       </div>
     </main>
   );
