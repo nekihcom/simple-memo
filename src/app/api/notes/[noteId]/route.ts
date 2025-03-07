@@ -1,15 +1,15 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth-helper';
 import { prisma } from '@/lib/prisma';
 
 // メモの取得
 export async function GET(
-  request: Request,
-  { params }: { params: Promise<{ noteId: string }> }
+  request: NextRequest
 ) {
   try {
     const session = await auth();
-    const { noteId } = await params;
+    const { pathname } = request.nextUrl;
+    const noteId = pathname.split('/').pop();
 
     if (!session?.user) {
       return new NextResponse('Unauthorized', { status: 401 });
@@ -17,7 +17,7 @@ export async function GET(
 
     const note = await prisma.note.findUnique({
       where: {
-        id: noteId,
+        id: noteId!,
         userId: session.user.id,
       },
     });
@@ -35,12 +35,12 @@ export async function GET(
 
 // メモの更新
 export async function PATCH(
-  request: Request,
-  { params }: { params: Promise<{ noteId: string }> }
+  request: NextRequest
 ) {
   try {
     const session = await auth();
-    const { noteId } = await params;
+    const { pathname } = request.nextUrl;
+    const noteId = pathname.split('/').pop();
 
     if (!session?.user) {
       return new NextResponse('Unauthorized', { status: 401 });
@@ -55,7 +55,7 @@ export async function PATCH(
 
     const note = await prisma.note.update({
       where: {
-        id: noteId,
+        id: noteId!,
         userId: session.user.id,
       },
       data: {
@@ -72,12 +72,12 @@ export async function PATCH(
 
 // メモの削除
 export async function DELETE(
-  request: Request,
-  { params }: { params: Promise<{ noteId: string }> }
+  request: NextRequest
 ) {
   try {
     const session = await auth();
-    const { noteId } = await params;
+    const { pathname } = request.nextUrl;
+    const noteId = pathname.split('/').pop();
 
     if (!session?.user) {
       return new NextResponse('Unauthorized', { status: 401 });
@@ -85,7 +85,7 @@ export async function DELETE(
 
     await prisma.note.delete({
       where: {
-        id: noteId,
+        id: noteId!,
         userId: session.user.id,
       },
     });
