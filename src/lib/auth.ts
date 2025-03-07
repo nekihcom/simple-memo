@@ -8,10 +8,24 @@ declare module 'next-auth' {
     user: {
       id: string;
       name: string | null;
-      email: string | null;
+      email: string;
       image: string | null;
       emailVerified: Date | null;
     };
+  }
+
+  interface JWT {
+    id?: string;
+    name?: string | null;
+    email?: string | null;
+    picture?: string | null;
+  }
+
+  interface User {
+    id?: string;
+    name?: string | null;
+    email?: string | null;
+    image?: string | null;
   }
 }
 
@@ -31,7 +45,7 @@ export const {
   ],
   callbacks: {
     async jwt({ token, user }) {
-      if (user) {
+      if (user?.id) {
         token.id = user.id;
         token.name = user.name ?? null;
         token.email = user.email ?? null;
@@ -40,12 +54,12 @@ export const {
       return token;
     },
     async session({ token, session }) {
-      if (token) {
+      if (token?.id) {
         session.user = {
           id: token.id as string,
-          name: token.name as string | null,
-          email: token.email as string | null,
-          image: token.picture as string | null,
+          name: token.name ?? null,
+          email: token.email || '',
+          image: token.picture ?? null,
           emailVerified: null,
         };
       }

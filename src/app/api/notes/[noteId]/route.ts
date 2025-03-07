@@ -2,19 +2,14 @@ import { NextResponse } from 'next/server';
 import { auth } from '@/lib/auth-helper';
 import { prisma } from '@/lib/prisma';
 
-type Context = {
-  params: {
-    noteId: string;
-  };
-};
-
 // メモの取得
 export async function GET(
-  _request: Request,
-  context: Context
+  request: Request,
+  { params }: { params: Promise<{ noteId: string }> }
 ) {
   try {
     const session = await auth();
+    const { noteId } = await params;
 
     if (!session?.user) {
       return new NextResponse('Unauthorized', { status: 401 });
@@ -22,7 +17,7 @@ export async function GET(
 
     const note = await prisma.note.findUnique({
       where: {
-        id: context.params.noteId,
+        id: noteId,
         userId: session.user.id,
       },
     });
@@ -41,10 +36,11 @@ export async function GET(
 // メモの更新
 export async function PATCH(
   request: Request,
-  context: Context
+  { params }: { params: Promise<{ noteId: string }> }
 ) {
   try {
     const session = await auth();
+    const { noteId } = await params;
 
     if (!session?.user) {
       return new NextResponse('Unauthorized', { status: 401 });
@@ -59,7 +55,7 @@ export async function PATCH(
 
     const note = await prisma.note.update({
       where: {
-        id: context.params.noteId,
+        id: noteId,
         userId: session.user.id,
       },
       data: {
@@ -76,11 +72,12 @@ export async function PATCH(
 
 // メモの削除
 export async function DELETE(
-  _request: Request,
-  context: Context
+  request: Request,
+  { params }: { params: Promise<{ noteId: string }> }
 ) {
   try {
     const session = await auth();
+    const { noteId } = await params;
 
     if (!session?.user) {
       return new NextResponse('Unauthorized', { status: 401 });
@@ -88,7 +85,7 @@ export async function DELETE(
 
     await prisma.note.delete({
       where: {
-        id: context.params.noteId,
+        id: noteId,
         userId: session.user.id,
       },
     });
