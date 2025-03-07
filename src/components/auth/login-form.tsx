@@ -5,7 +5,6 @@ import { useSearchParams } from 'next/navigation';
 import { signIn } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
 import { Icons } from '@/components/ui/icons';
-import { toast } from 'sonner';
 
 export function LoginForm() {
   const searchParams = useSearchParams();
@@ -16,8 +15,6 @@ export function LoginForm() {
     try {
       setIsGoogleLoading(true);
       await signIn('google', { callbackUrl });
-    } catch (error) {
-      toast.error('ログインに失敗しました');
     } finally {
       setIsGoogleLoading(false);
     }
